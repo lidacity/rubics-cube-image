@@ -87,9 +87,9 @@ def GetLine(X, Y, Direction, Way, Full, Size):
  #
  elif Direction == Left:
   if Way == After:
-   return ((x - t1 + 3, y), (Size * 3, y) if Full else (Size // 2, y))
+   return ((x - t1 + 3, y), (0, y) if Full else (Size // 2, y))
   elif Way == Before:
-   return ((x - t1 + h0 - h1 - 3, y), (0, y) if Full else (Size * 3 - Size // 2, y))
+   return ((x - t1 + h0 - h1 - 3, y), (Size * 3, y) if Full else (Size * 3 - Size // 2, y))
  #
  elif Direction == Down:
   if Way == After:
@@ -99,9 +99,9 @@ def GetLine(X, Y, Direction, Way, Full, Size):
  #
  elif Direction == Right:
   if Way == After:
-   return ((x + t1 - 3, y), (0, y) if Full else (Size * 3 - Size // 2, y))
+   return ((x + t1 - 3, y), (Size * 3, y) if Full else (Size * 3 - Size // 2, y))
   elif Way == Before:
-   return ((x + t1 - h0 + h1 + 3, y), (Size * 3, y) if Full else (Size // 2, y))
+   return ((x + t1 - h0 + h1 + 3, y), (0, y) if Full else (Size // 2, y))
  #
  return None
 
@@ -174,21 +174,193 @@ def DrawCommand(Face, Image1, Size, Command):
   elif Face == "D":
    DrawArrow(Draw2, 0, 1, Down, Before, True, S)
  #
-# "R": [ [ "R", ], ],
-# "R'": [ [ "R'", ], ],
-# "R2": [ [ "R2", ], ],
-# "U": [ [ "U", ], ],
-# "U'": [ [ "U'", ], ],
-# "U2": [ [ "U2", ], ],
-# "D": [ [ "D", ], ],
-# "D'": [ [ "D'", ], ],
-# "D2": [ [ "D2", ], ],
-# "X": [ [ "X", ], ],
-# "X'": [ [ "X'", ], ],
-# "X2": [ [ "X2", ], ],
-# "Y": [ [ "Y", ], ],
-# "Y'": [ [ "Y'", ], ],
-# "Y2": [ [ "Y2", ], ],
+ if Command == "R":
+  if Face == "R":
+   DrawArrow(Draw2, 0, 1, Up, After, False, S)
+   DrawArrow(Draw2, 1, 0, Right, Before, False, S)
+  elif Face == "F":
+   DrawArrow(Draw2, 2, 1, Up, After, True, S)
+  elif Face == "U":
+   DrawArrow(Draw2, 2, 1, Up, Before, True, S)
+ elif Command == "R'":
+  if Face == "R":
+   DrawArrow(Draw2, 1, 0, Left, After, False, S)
+   DrawArrow(Draw2, 0, 1, Down, Before, False, S)
+  elif Face == "U":
+   DrawArrow(Draw2, 2, 1, Down, After, True, S)
+  elif Face == "F":
+   DrawArrow(Draw2, 2, 1, Down, Before, True, S)
+ elif Command == "R2":
+  if Face == "R":
+   DrawArrow(Draw2, 1, 2, Left, After, False, S)
+   DrawLine(Draw2, False, S, Col=0)
+   DrawArrow(Draw2, 1, 0, Right, Before, False, S)
+  elif Face == "D":
+   DrawArrow(Draw2, 2, 1, Up, After, True, S)
+  elif Face == "F":
+   DrawLine(Draw2, True, S, Col=2)
+  elif Face == "U":
+   DrawArrow(Draw2, 2, 1, Up, Before, True, S)
+ #
+ if Command == "U":
+  if Face == "U":
+   DrawArrow(Draw2, 1, 2, Left, After, False, S)
+   DrawArrow(Draw2, 0, 1, Up, Before, False, S)
+  elif Face == "F":
+   DrawArrow(Draw2, 1, 0, Left, After, True, S)
+  elif Face == "L":
+   DrawArrow(Draw2, 1, 0, Left, Before, True, S)
+ elif Command == "U'":
+  if Face == "U":
+   DrawArrow(Draw2, 1, 2, Right, After, False, S)
+   DrawArrow(Draw2, 2, 1, Up, Before, False, S)
+  elif Face == "F":
+   DrawArrow(Draw2, 1, 0, Right, After, True, S)
+  elif Face == "R":
+   DrawArrow(Draw2, 1, 0, Right, Before, True, S)
+ elif Command == "U2":
+  if Face == "U":
+   DrawArrow(Draw2, 1, 2, Left, After, False, S)
+   DrawLine(Draw2, False, S, Col=0)
+   DrawArrow(Draw2, 1, 0, Right, Before, False, S)
+  elif Face == "F":
+   DrawArrow(Draw2, 1, 0, Left, After, True, S)
+  elif Face == "L":
+   DrawLine(Draw2, True, S, Row=0)
+  elif Face == "B":
+   DrawArrow(Draw2, 1, 0, Left, Before, True, S)
+ #
+ if Command == "D":
+  if Face == "D":
+   DrawArrow(Draw2, 1, 0, Right, After, False, S)
+   DrawArrow(Draw2, 2, 1, Down, Before, False, S)
+  elif Face == "F":
+   DrawArrow(Draw2, 1, 2, Right, After, True, S)
+  elif Face == "R":
+   DrawArrow(Draw2, 1, 2, Right, Before, True, S)
+ elif Command == "D'":
+  if Face == "D":
+   DrawArrow(Draw2, 1, 0, Left, After, False, S)
+   DrawArrow(Draw2, 0, 1, Down, Before, False, S)
+  elif Face == "F":
+   DrawArrow(Draw2, 1, 2, Left, After, True, S)
+  elif Face == "L":
+   DrawArrow(Draw2, 1, 2, Left, Before, True, S)
+ elif Command == "D2":
+  if Face == "D":
+   DrawArrow(Draw2, 1, 0, Right, After, False, S)
+   DrawLine(Draw2, False, S, Col=2)
+   DrawArrow(Draw2, 1, 2, Left, Before, False, S)
+  elif Face == "F":
+   DrawArrow(Draw2, 1, 2, Right, After, True, S)
+  elif Face == "R":
+   DrawLine(Draw2, True, S, Row=2)
+  elif Face == "B":
+   DrawArrow(Draw2, 1, 2, Right, Before, True, S)
+ #
+ if Command == "X":
+  if Face == "L":
+   DrawArrow(Draw2, 2, 1, Up, After, False, S)
+   DrawArrow(Draw2, 1, 0, Left, Before, False, S)
+  elif Face == "R":
+   DrawArrow(Draw2, 0, 1, Up, After, False, S)
+   DrawArrow(Draw2, 1, 0, Right, Before, False, S)
+  elif Face == "F":
+   DrawArrow(Draw2, 0, 1, Up, After, True, S)
+   DrawArrow(Draw2, 1, 1, Up, After, True, S)
+   DrawArrow(Draw2, 2, 1, Up, After, True, S)
+  elif Face == "U":
+   DrawArrow(Draw2, 0, 1, Up, Before, True, S)
+   DrawArrow(Draw2, 1, 1, Up, Before, True, S)
+   DrawArrow(Draw2, 2, 1, Up, Before, True, S)
+ elif Command == "X'":
+  if Face == "L":
+   DrawArrow(Draw2, 1, 0, Right, After, False, S)
+   DrawArrow(Draw2, 2, 1, Down, Before, False, S)
+  if Face == "R":
+   DrawArrow(Draw2, 1, 0, Left, After, False, S)
+   DrawArrow(Draw2, 0, 1, Down, Before, False, S)
+  elif Face == "U":
+   DrawArrow(Draw2, 0, 1, Down, After, True, S)
+   DrawArrow(Draw2, 1, 1, Down, After, True, S)
+   DrawArrow(Draw2, 2, 1, Down, After, True, S)
+  elif Face == "F":
+   DrawArrow(Draw2, 0, 1, Down, Before, True, S)
+   DrawArrow(Draw2, 1, 1, Down, Before, True, S)
+   DrawArrow(Draw2, 2, 1, Down, Before, True, S)
+ elif Command == "X2":
+  if Face == "L":
+   DrawArrow(Draw2, 2, 1, Up, After, False, S)
+   DrawLine(Draw2, False, S, Row=0)
+   DrawArrow(Draw2, 0, 1, Down, Before, False, S)
+  if Face == "R":
+   DrawArrow(Draw2, 0, 1, Up, After, False, S)
+   DrawLine(Draw2, False, S, Row=0)
+   DrawArrow(Draw2, 2, 1, Down, Before, False, S)
+  elif Face == "F":
+   DrawArrow(Draw2, 0, 1, Up, After, True, S)
+   DrawArrow(Draw2, 1, 1, Up, After, True, S)
+   DrawArrow(Draw2, 2, 1, Up, After, True, S)
+  elif Face == "U":
+   DrawLine(Draw2, True, S, Col=0)
+   DrawLine(Draw2, True, S, Col=1)
+   DrawLine(Draw2, True, S, Col=2)
+  elif Face == "B":
+   DrawArrow(Draw2, 0, 1, Down, Before, True, S)
+   DrawArrow(Draw2, 1, 1, Down, Before, True, S)
+   DrawArrow(Draw2, 2, 1, Down, Before, True, S)
+ #
+ if Command == "Y":
+  if Face == "U":
+   DrawArrow(Draw2, 1, 2, Left, After, False, S)
+   DrawArrow(Draw2, 0, 1, Up, Before, False, S)
+  elif Face == "D":
+   DrawArrow(Draw2, 1, 0, Left, After, False, S)
+   DrawArrow(Draw2, 0, 1, Down, Before, False, S)
+  elif Face == "F":
+   DrawArrow(Draw2, 1, 0, Left, After, True, S)
+   DrawArrow(Draw2, 1, 1, Left, After, True, S)
+   DrawArrow(Draw2, 1, 2, Left, After, True, S)
+  elif Face == "L":
+   DrawArrow(Draw2, 1, 0, Left, Before, True, S)
+   DrawArrow(Draw2, 1, 1, Left, Before, True, S)
+   DrawArrow(Draw2, 1, 2, Left, Before, True, S)
+ elif Command == "Y'":
+  if Face == "U":
+   DrawArrow(Draw2, 1, 2, Right, After, False, S)
+   DrawArrow(Draw2, 2, 1, Up, Before, False, S)
+  if Face == "D":
+   DrawArrow(Draw2, 1, 0, Right, After, False, S)
+   DrawArrow(Draw2, 2, 1, Down, Before, False, S)
+  elif Face == "F":
+   DrawArrow(Draw2, 1, 0, Right, After, True, S)
+   DrawArrow(Draw2, 1, 1, Right, After, True, S)
+   DrawArrow(Draw2, 1, 2, Right, After, True, S)
+  elif Face == "R":
+   DrawArrow(Draw2, 1, 0, Right, Before, True, S)
+   DrawArrow(Draw2, 1, 1, Right, Before, True, S)
+   DrawArrow(Draw2, 1, 2, Right, Before, True, S)
+ elif Command == "Y2":
+  if Face == "U":
+   DrawArrow(Draw2, 1, 2, Left, After, False, S)
+   DrawLine(Draw2, False, S, Col=0)
+   DrawArrow(Draw2, 1, 0, Right, Before, False, S)
+  if Face == "D":
+   DrawArrow(Draw2, 1, 0, Left, After, False, S)
+   DrawLine(Draw2, False, S, Col=0)
+   DrawArrow(Draw2, 1, 2, Right, Before, False, S)
+  elif Face == "F":
+   DrawArrow(Draw2, 1, 0, Left, After, True, S)
+   DrawArrow(Draw2, 1, 1, Left, After, True, S)
+   DrawArrow(Draw2, 1, 2, Left, After, True, S)
+  elif Face == "L":
+   DrawLine(Draw2, True, S, Row=0)
+   DrawLine(Draw2, True, S, Row=1)
+   DrawLine(Draw2, True, S, Row=2)
+  elif Face == "B":
+   DrawArrow(Draw2, 1, 0, Left, Before, True, S)
+   DrawArrow(Draw2, 1, 1, Left, Before, True, S)
+   DrawArrow(Draw2, 1, 2, Left, Before, True, S)
 # # change unsupported
 # "F": [ [ "Y", "L", "Y'", ], [ "Y'", "R", "Y", ], ],
 # "F'": [ [ "Y", "L'", "Y'", ], [ "Y'", "R'", "Y", ], ],
@@ -261,24 +433,24 @@ def GetImage(Cube, Size, Command=None):
    C = Cube[(FaceIndex * 9) + Index]
    #print(Face, (FaceIndex * 9) + Index, Cube[(FaceIndex * 9) + Index], Color)
    Draw1.rounded_rectangle((x, y, x + w - 1, y + h - 1), radius=Size // 50, fill=Colors[C])
-  Image1.save(f"{Face}.png")
+  #Image1.save(f"{Face}.png")
   if Command is not None:
    Image2 = DrawCommand(Face, Image1, Size, Command)
-  Image2.save(f"{Face}_.png")
+  #Image2.save(f"{Face}_.png")
   x0, y0, w0, h0 = Get0(Coords[Face], Coords["0"])
   #print(x0, y0, w0, h0, Coords[Face])
   Coeffs = FindCoeffs(Coords[Face], Coords["0"])
   Image3 = Image2.transform(((w0, h0)), method=Image.PERSPECTIVE, data=Coeffs)
-  Image3.save(f"{Face}__.png")
+  #Image3.save(f"{Face}__.png")
   Sides[Face] = { "Image": Image3, "x": x0, "y": y0, "w": w0, "h": h0 }
  #
  w = h = 0
  for Item in Position:
   w = max(Item["x"], w)
   h = max(Item["y"], h)
+ Result = Image.new('RGBA', (w + Size, h + Size // 2), 0)
  #
  if Command is not None:
-  Result = Image.new('RGBA', (w + Size, h + Size // 2), 0)
   Font1 = ImageFont.truetype("FreeMono.ttf", Size // 3)
   Draw1 = ImageDraw.Draw(Result)
   Draw1.text((Size - Size / 5, Size / 5), Command, font=Font1, fill="black")
@@ -288,10 +460,6 @@ def GetImage(Cube, Size, Command=None):
   x, y = Item["x"], Item["y"]
   Side = Sides[Face]
   Result.alpha_composite(Side["Image"], (x, y))
- Result.save(f"Result.png")
+ #Result.save(f"Result.png")
  return Result
-
-
-
-
 
