@@ -11,6 +11,15 @@ Colors = {
 }
 
 
+B, E = range(2) # линию от стрелки рисовать после стрелки (B), или до (E)
+Up, Left, Down, Right = range(4) # направление стрелки
+Col, Row = range(2) # линия вертикальная (Col) или горизонтальная (Row)
+
+
+FillColor = (0, 0, 0, 128)
+LineColor = (0, 0, 0, 160)
+
+
 '''
   U
 L F R B
@@ -54,10 +63,6 @@ def Get0(OriginalCoords, WarpedCoords):
  return int(x1), int(y1), int(w1), int(h1)
 
 
-After, Before = range(2)
-Up, Left, Down, Right = range(4)
-
-
 def GetArrow(X, Y, Direction, Size):
  x, y = X * Size + Size // 2, Y * Size + Size // 2
  t0 = Size // 4
@@ -79,35 +84,33 @@ def GetLine(X, Y, Direction, Way, Full, Size):
  t1 = Size // 3
  h0 = Size * 2 // 3
  h1 = Size // 9
+ FullSize = Size * 3
+ HalfSize = Size // 2
  if Direction == Up:
-  if Way == After:
-   return ((x, y - t1 + 3), (x, 0) if Full else (x, Size // 2))
-  elif Way == Before:
-   return ((x, y - t1 + h0 - h1 - 3), (x, Size * 3) if Full else (x, Size * 3 - Size // 2))
+  if Way == B:
+   return ((x, y - t1 + 3), (x, 0 if Full else HalfSize))
+  elif Way == E:
+   return ((x, y - t1 + h0 - h1 - 3), (x, FullSize if Full else FullSize - HalfSize))
  #
  elif Direction == Left:
-  if Way == After:
-   return ((x - t1 + 3, y), (0, y) if Full else (Size // 2, y))
-  elif Way == Before:
-   return ((x - t1 + h0 - h1 - 3, y), (Size * 3, y) if Full else (Size * 3 - Size // 2, y))
+  if Way == B:
+   return ((x - t1 + 3, y), (0 if Full else HalfSize, y))
+  elif Way == E:
+   return ((x - t1 + h0 - h1 - 3, y), (FullSize if Full else FullSize - HalfSize, y))
  #
  elif Direction == Down:
-  if Way == After:
-   return ((x, y + t1 - 3), (x, Size * 3) if Full else (x, Size * 3 - Size // 2))
-  elif Way == Before:
-   return ((x, y + t1 - h0 + h1 + 3), (x, 0) if Full else (x, Size // 2))
+  if Way == B:
+   return ((x, y + t1 - 3), (x, FullSize if Full else FullSize - HalfSize))
+  elif Way == E:
+   return ((x, y + t1 - h0 + h1 + 3), (x, 0 if Full else HalfSize))
  #
  elif Direction == Right:
-  if Way == After:
-   return ((x + t1 - 3, y), (Size * 3, y) if Full else (Size * 3 - Size // 2, y))
-  elif Way == Before:
-   return ((x + t1 - h0 + h1 + 3, y), (0, y) if Full else (Size // 2, y))
+  if Way == B:
+   return ((x + t1 - 3, y), (FullSize if Full else FullSize - HalfSize, y))
+  elif Way == E:
+   return ((x + t1 - h0 + h1 + 3, y), (0 if Full else HalfSize, y))
  #
  return None
-
-
-FillColor = (0, 0, 0, 128)
-LineColor = (0, 0, 0, 160)
 
 
 def DrawArrow(Draw1, X, Y, Direction, Way, Full, Size):
@@ -118,286 +121,224 @@ def DrawArrow(Draw1, X, Y, Direction, Way, Full, Size):
  Draw1.line(Line, fill=LineColor, width=Width)
 
 
-def DrawLine(Draw1, Full, Size, Col=None, Row=None):
+def DrawLine(Draw1, Direction, I, Full, Size):
  Width = Size // 16
  Line = None
  if Full:
-  if Col is not None:
-   x = Col * Size + Size // 2
+  if Direction == Col:
+   x = I * Size + Size // 2
    Line = ((x, 0), (x, Size * 3))
-  elif Row is not None:
-   y = Row * Size + Size // 2
+  elif Dorection == Row:
+   y = I * Size + Size // 2
    Line = ((0, y), (Size * 3, y))
  else:
-  if Col is not None:
-   x = Col * Size + Size // 2
+  if Direction == Col:
+   x = I * Size + Size // 2
    y1, y2 = 0 * Size + Size // 2, 2 * Size + Size // 2
    Line = ((x, y1), (x, y2))
-  elif Row is not None:
+  elif Direction == Row:
    x1, x2 = 0 * Size + Size // 2, 2 * Size + Size // 2
-   y = Row * Size + Size // 2
+   y = I * Size + Size // 2
    Line = ((x1, y), (x2, y))
  Draw1.line(Line, fill=LineColor, width=Width)
 
+
+ConstArrow = {
+ "L": {
+  "L": [ ( 1, 0, Right, B, False ), ( 2, 1, Down, E, False ), ],
+  "U": [ ( 0, 1, Down, B, True ), ],
+  "F": [ ( 0, 1, Down, E, True ), ],
+ },
+ "L'": {
+  "L": [ ( 2, 1, Up, B, False ), ( 1, 0, Left, E, False ), ],
+  "F": [ ( 0, 1, Up, B, True ), ],
+  "U": [ ( 0, 1, Up, E, True ), ],
+ },
+ "L2": {
+  "L": [ ( 1, 0, Right, B, False ), ( 1, 2, Left, E, False ), ],
+  "U": [ ( 0, 1, Down, B, True ), ],
+  "D": [ ( 0, 1, Down, E, True ), ],
+ },
+ "R": {
+  "R": [ ( 0, 1, Up, B, False ), ( 1, 0, Right, E, False ), ],
+  "F": [ ( 2, 1, Up, B, True ), ],
+  "U": [ ( 2, 1, Up, E, True ), ],
+ },
+ "R'": {
+  "R": [ ( 1, 0, Left, B, False ), ( 0, 1, Down, E, False ), ],
+  "U": [ ( 2, 1, Down, B, True ), ],
+  "F": [ ( 2, 1, Down, E, True ), ],
+ },
+ "R2": {
+  "R": [ ( 1, 2, Left, B, False ), ( 1, 0, Right, E, False ), ],
+  "D": [ ( 2, 1, Up, B, True ), ],
+  "U": [ ( 2, 1, Up, E, True ), ],
+ },
+ "U": {
+  "U": [ ( 1, 2, Left, B, False ), ( 0, 1, Up, E, False ), ],
+  "F": [ ( 1, 0, Left, B, True ), ],
+  "L": [ ( 1, 0, Left, E, True ), ],
+ },
+ "U'": {
+  "U": [ ( 1, 2, Right, B, False ), ( 2, 1, Up, E, False ), ],
+  "F": [ ( 1, 0, Right, B, True ), ],
+  "R": [ ( 1, 0, Right, E, True ), ],
+ },
+ "U2": {
+  "U": [ ( 1, 2, Left, B, False ), ( 1, 0, Right, E, False ), ],
+  "F": [ ( 1, 0, Left, B, True ), ],
+  "B": [ ( 1, 0, Left, E, True ), ],
+ },
+ "D": {
+  "D": [ ( 1, 0, Right, B, False ), ( 2, 1, Down, E, False ), ],
+  "F": [ ( 1, 2, Right, B, True ), ],
+  "R": [ ( 1, 2, Right, E, True ), ],
+ },
+ "D'": {
+  "D": [ ( 1, 0, Left, B, False ), ( 0, 1, Down, E, False ), ],
+  "F": [ ( 1, 2, Left, B, True ), ],
+  "L": [ ( 1, 2, Left, E, True ), ],
+ },
+ "D2": {
+  "D": [ ( 1, 0, Right, B, False ), ( 1, 2, Left, E, False ), ],
+  "F": [ ( 1, 2, Right, B, True ), ],
+  "B": [ ( 1, 2, Right, E, True ), ],
+ },
+ "X": {
+  "L": [ ( 2, 1, Up, B, False ), ( 1, 0, Left, E, False ), ],
+  "R": [ ( 0, 1, Up, B, False ), ( 1, 0, Right, E, False ), ],
+  "F": [ ( 0, 1, Up, B, True ), ( 1, 1, Up, B, True ), ( 2, 1, Up, B, True ), ],
+  "U": [ ( 0, 1, Up, E, True ), ( 1, 1, Up, E, True ), ( 2, 1, Up, E, True ), ],
+ },
+ "X'": {
+  "L": [ ( 1, 0, Right, B, False ), ( 2, 1, Down, E, False ), ],
+  "R": [ ( 1, 0, Left, B, False ), ( 0, 1, Down, E, False ), ],
+  "U": [ ( 0, 1, Down, B, True ), ( 1, 1, Down, B, True ), ( 2, 1, Down, B, True ), ],
+  "F": [ ( 0, 1, Down, E, True ), ( 1, 1, Down, E, True ), ( 2, 1, Down, E, True ), ],
+ },
+ "X2": {
+  "L": [ ( 2, 1, Up, B, False ), ( 0, 1, Down, E, False ), ],
+  "R": [ ( 0, 1, Up, B, False ), ( 2, 1, Down, E, False ), ],
+  "F": [ ( 0, 1, Up, B, True ), ( 1, 1, Up, B, True ), ( 2, 1, Up, B, True ), ],
+  "B": [ ( 0, 1, Down, E, True ), ( 1, 1, Down, E, True ), ( 2, 1, Down, E, True ), ],
+ },
+ "Y": {
+  "U": [ ( 1, 2, Left, B, False ), ( 0, 1, Up, E, False ), ],
+  "D": [ ( 1, 0, Left, B, False ), ( 0, 1, Down, E, False ), ],
+  "F": [ ( 1, 0, Left, B, True ), ( 1, 1, Left, B, True ), ( 1, 2, Left, B, True ), ],
+  "L": [ ( 1, 0, Left, E, True ), ( 1, 1, Left, E, True ), ( 1, 2, Left, E, True ), ],
+ },
+ "Y'": {
+  "U": [ ( 1, 2, Right, B, False ), ( 2, 1, Up, E, False ), ],
+  "D": [ ( 1, 0, Right, B, False ), ( 2, 1, Down, E, False ), ],
+  "F": [ ( 1, 0, Right, B, True ), ( 1, 1, Right, B, True ), ( 1, 2, Right, B, True ), ],
+  "R": [ ( 1, 0, Right, E, True ), ( 1, 1, Right, E, True ), ( 1, 2, Right, E, True ), ],
+ },
+ "Y2": {
+  "U": [ ( 1, 2, Left, B, False ), ( 1, 0, Right, E, False ), ],
+  "D": [ ( 1, 0, Left, B, False ), ( 1, 2, Right, E, False ), ],
+  "F": [ ( 1, 0, Left, B, True ), ( 1, 1, Left, B, True ), ( 1, 2, Left, B, True ), ],
+  "B": [ ( 1, 0, Left, E, True ), ( 1, 1, Left, E, True ), ( 1, 2, Left, E, True ), ],
+ },
+# # change unsupported
+# "F": {
+# "F'": {
+# "F2": {
+# "B": {
+# "B'": {
+# "B2": {
+# "M": {
+# "M'": {
+# "M2": {
+# "E": {
+# "E'": {
+# "E2": {
+# "S": {
+# "S'": {
+# "S2": {
+# "u": {
+# "l": {
+# "f": {
+# "r": {
+# "b": {
+# "d": {
+# "u'": {
+# "l'": {
+# "f'": {
+# "r'": {
+# "b'": {
+# "d'": {
+# "u2": {
+# "l2": {
+# "f2": {
+# "r2": {
+# "b2": {
+# "d2": {
+# "Z": {
+# "Z'": {
+# "Z2": {
+}
+
+ConstLine = {
+ "L2": {
+  "L": [ ( Col, 2, False ), ],
+  "F": [ ( Col, 0, True ), ],
+ },
+ "R2": {
+  "R": [ ( Col, 0, False ), ],
+  "F": [ ( Col, 2, True ), ],
+ },
+ "U2": {
+  "U": [ ( Col, 0, False ), ],
+  "L": [ ( Row, 0, True ), ],
+ }, 
+ "D2": {
+  "D": [ ( Col, 2, False ), ],
+  "R": [ ( Row, 2, True ), ],
+ }, 
+ "X2": {
+  "L": [ ( Row, 0, False ), ],
+  "R": [ ( Row, 0, False ), ],
+  "U": [ ( Col, 0, True ), ( Col, 1, True ), ( Col, 2, True ), ],
+ },
+ "Y2": {
+  "U": [ ( Col, 0, False ), ],
+  "D": [ ( Col, 0, False ), ],
+  "L": [ ( Row, 0, True ), ( Row, 1, True ), ( Row, 2, True ), ],
+ },
+# # change unsupported
+# "F2": {
+# "B2": {
+# "M2": {
+# "E2": {
+# "S2": {
+# "u2": {
+# "l2": {
+# "f2": {
+# "r2": {
+# "b2": {
+# "d2": {
+# "Z2": {
+}
 
 
 def DrawCommand(Face, Image1, Size, Command):
  Image2 = Image.new('RGBA', Image1.size)
  Draw2 = ImageDraw.Draw(Image2)
- S = Size // 3
+ Item = ConstArrow[Command].get(Face, None)
+ if Item is not None:
+  S = Size // 3
+  for X, Y, Direction, Way, Full in Item:
+   DrawArrow(Draw2, X, Y, Direction, Way, Full, S)
  #
- if Command == "L":
-  if Face == "L":
-   DrawArrow(Draw2, 1, 0, Right, After, False, S)
-   DrawArrow(Draw2, 2, 1, Down, Before, False, S)
-  elif Face == "U":
-   DrawArrow(Draw2, 0, 1, Down, After, True, S)
-  elif Face == "F":
-   DrawArrow(Draw2, 0, 1, Down, Before, True, S)
- elif Command == "L'":
-  if Face == "L":
-   DrawArrow(Draw2, 2, 1, Up, After, False, S)
-   DrawArrow(Draw2, 1, 0, Left, Before, False, S)
-  elif Face == "F":
-   DrawArrow(Draw2, 0, 1, Up, After, True, S)
-  elif Face == "U":
-   DrawArrow(Draw2, 0, 1, Up, Before, True, S)
- elif Command == "L2":
-  if Face == "L":
-   DrawArrow(Draw2, 1, 0, Right, After, False, S)
-   DrawLine(Draw2, False, S, Col=2)
-   DrawArrow(Draw2, 1, 2, Left, Before, False, S)
-  elif Face == "U":
-   DrawArrow(Draw2, 0, 1, Down, After, True, S)
-  elif Face == "F":
-   DrawLine(Draw2, True, S, Col=0)
-  elif Face == "D":
-   DrawArrow(Draw2, 0, 1, Down, Before, True, S)
+ Line = ConstLine.get(Command, None)
+ if Line is not None:
+  Item = Line.get(Face, None)
+  if Item is not None:
+   S = Size // 3
+   for Direction, I, Full in Item:
+    DrawLine(Draw2, Direction, I, Full, S)
  #
- if Command == "R":
-  if Face == "R":
-   DrawArrow(Draw2, 0, 1, Up, After, False, S)
-   DrawArrow(Draw2, 1, 0, Right, Before, False, S)
-  elif Face == "F":
-   DrawArrow(Draw2, 2, 1, Up, After, True, S)
-  elif Face == "U":
-   DrawArrow(Draw2, 2, 1, Up, Before, True, S)
- elif Command == "R'":
-  if Face == "R":
-   DrawArrow(Draw2, 1, 0, Left, After, False, S)
-   DrawArrow(Draw2, 0, 1, Down, Before, False, S)
-  elif Face == "U":
-   DrawArrow(Draw2, 2, 1, Down, After, True, S)
-  elif Face == "F":
-   DrawArrow(Draw2, 2, 1, Down, Before, True, S)
- elif Command == "R2":
-  if Face == "R":
-   DrawArrow(Draw2, 1, 2, Left, After, False, S)
-   DrawLine(Draw2, False, S, Col=0)
-   DrawArrow(Draw2, 1, 0, Right, Before, False, S)
-  elif Face == "D":
-   DrawArrow(Draw2, 2, 1, Up, After, True, S)
-  elif Face == "F":
-   DrawLine(Draw2, True, S, Col=2)
-  elif Face == "U":
-   DrawArrow(Draw2, 2, 1, Up, Before, True, S)
- #
- if Command == "U":
-  if Face == "U":
-   DrawArrow(Draw2, 1, 2, Left, After, False, S)
-   DrawArrow(Draw2, 0, 1, Up, Before, False, S)
-  elif Face == "F":
-   DrawArrow(Draw2, 1, 0, Left, After, True, S)
-  elif Face == "L":
-   DrawArrow(Draw2, 1, 0, Left, Before, True, S)
- elif Command == "U'":
-  if Face == "U":
-   DrawArrow(Draw2, 1, 2, Right, After, False, S)
-   DrawArrow(Draw2, 2, 1, Up, Before, False, S)
-  elif Face == "F":
-   DrawArrow(Draw2, 1, 0, Right, After, True, S)
-  elif Face == "R":
-   DrawArrow(Draw2, 1, 0, Right, Before, True, S)
- elif Command == "U2":
-  if Face == "U":
-   DrawArrow(Draw2, 1, 2, Left, After, False, S)
-   DrawLine(Draw2, False, S, Col=0)
-   DrawArrow(Draw2, 1, 0, Right, Before, False, S)
-  elif Face == "F":
-   DrawArrow(Draw2, 1, 0, Left, After, True, S)
-  elif Face == "L":
-   DrawLine(Draw2, True, S, Row=0)
-  elif Face == "B":
-   DrawArrow(Draw2, 1, 0, Left, Before, True, S)
- #
- if Command == "D":
-  if Face == "D":
-   DrawArrow(Draw2, 1, 0, Right, After, False, S)
-   DrawArrow(Draw2, 2, 1, Down, Before, False, S)
-  elif Face == "F":
-   DrawArrow(Draw2, 1, 2, Right, After, True, S)
-  elif Face == "R":
-   DrawArrow(Draw2, 1, 2, Right, Before, True, S)
- elif Command == "D'":
-  if Face == "D":
-   DrawArrow(Draw2, 1, 0, Left, After, False, S)
-   DrawArrow(Draw2, 0, 1, Down, Before, False, S)
-  elif Face == "F":
-   DrawArrow(Draw2, 1, 2, Left, After, True, S)
-  elif Face == "L":
-   DrawArrow(Draw2, 1, 2, Left, Before, True, S)
- elif Command == "D2":
-  if Face == "D":
-   DrawArrow(Draw2, 1, 0, Right, After, False, S)
-   DrawLine(Draw2, False, S, Col=2)
-   DrawArrow(Draw2, 1, 2, Left, Before, False, S)
-  elif Face == "F":
-   DrawArrow(Draw2, 1, 2, Right, After, True, S)
-  elif Face == "R":
-   DrawLine(Draw2, True, S, Row=2)
-  elif Face == "B":
-   DrawArrow(Draw2, 1, 2, Right, Before, True, S)
- #
- if Command == "X":
-  if Face == "L":
-   DrawArrow(Draw2, 2, 1, Up, After, False, S)
-   DrawArrow(Draw2, 1, 0, Left, Before, False, S)
-  elif Face == "R":
-   DrawArrow(Draw2, 0, 1, Up, After, False, S)
-   DrawArrow(Draw2, 1, 0, Right, Before, False, S)
-  elif Face == "F":
-   DrawArrow(Draw2, 0, 1, Up, After, True, S)
-   DrawArrow(Draw2, 1, 1, Up, After, True, S)
-   DrawArrow(Draw2, 2, 1, Up, After, True, S)
-  elif Face == "U":
-   DrawArrow(Draw2, 0, 1, Up, Before, True, S)
-   DrawArrow(Draw2, 1, 1, Up, Before, True, S)
-   DrawArrow(Draw2, 2, 1, Up, Before, True, S)
- elif Command == "X'":
-  if Face == "L":
-   DrawArrow(Draw2, 1, 0, Right, After, False, S)
-   DrawArrow(Draw2, 2, 1, Down, Before, False, S)
-  if Face == "R":
-   DrawArrow(Draw2, 1, 0, Left, After, False, S)
-   DrawArrow(Draw2, 0, 1, Down, Before, False, S)
-  elif Face == "U":
-   DrawArrow(Draw2, 0, 1, Down, After, True, S)
-   DrawArrow(Draw2, 1, 1, Down, After, True, S)
-   DrawArrow(Draw2, 2, 1, Down, After, True, S)
-  elif Face == "F":
-   DrawArrow(Draw2, 0, 1, Down, Before, True, S)
-   DrawArrow(Draw2, 1, 1, Down, Before, True, S)
-   DrawArrow(Draw2, 2, 1, Down, Before, True, S)
- elif Command == "X2":
-  if Face == "L":
-   DrawArrow(Draw2, 2, 1, Up, After, False, S)
-   DrawLine(Draw2, False, S, Row=0)
-   DrawArrow(Draw2, 0, 1, Down, Before, False, S)
-  if Face == "R":
-   DrawArrow(Draw2, 0, 1, Up, After, False, S)
-   DrawLine(Draw2, False, S, Row=0)
-   DrawArrow(Draw2, 2, 1, Down, Before, False, S)
-  elif Face == "F":
-   DrawArrow(Draw2, 0, 1, Up, After, True, S)
-   DrawArrow(Draw2, 1, 1, Up, After, True, S)
-   DrawArrow(Draw2, 2, 1, Up, After, True, S)
-  elif Face == "U":
-   DrawLine(Draw2, True, S, Col=0)
-   DrawLine(Draw2, True, S, Col=1)
-   DrawLine(Draw2, True, S, Col=2)
-  elif Face == "B":
-   DrawArrow(Draw2, 0, 1, Down, Before, True, S)
-   DrawArrow(Draw2, 1, 1, Down, Before, True, S)
-   DrawArrow(Draw2, 2, 1, Down, Before, True, S)
- #
- if Command == "Y":
-  if Face == "U":
-   DrawArrow(Draw2, 1, 2, Left, After, False, S)
-   DrawArrow(Draw2, 0, 1, Up, Before, False, S)
-  elif Face == "D":
-   DrawArrow(Draw2, 1, 0, Left, After, False, S)
-   DrawArrow(Draw2, 0, 1, Down, Before, False, S)
-  elif Face == "F":
-   DrawArrow(Draw2, 1, 0, Left, After, True, S)
-   DrawArrow(Draw2, 1, 1, Left, After, True, S)
-   DrawArrow(Draw2, 1, 2, Left, After, True, S)
-  elif Face == "L":
-   DrawArrow(Draw2, 1, 0, Left, Before, True, S)
-   DrawArrow(Draw2, 1, 1, Left, Before, True, S)
-   DrawArrow(Draw2, 1, 2, Left, Before, True, S)
- elif Command == "Y'":
-  if Face == "U":
-   DrawArrow(Draw2, 1, 2, Right, After, False, S)
-   DrawArrow(Draw2, 2, 1, Up, Before, False, S)
-  if Face == "D":
-   DrawArrow(Draw2, 1, 0, Right, After, False, S)
-   DrawArrow(Draw2, 2, 1, Down, Before, False, S)
-  elif Face == "F":
-   DrawArrow(Draw2, 1, 0, Right, After, True, S)
-   DrawArrow(Draw2, 1, 1, Right, After, True, S)
-   DrawArrow(Draw2, 1, 2, Right, After, True, S)
-  elif Face == "R":
-   DrawArrow(Draw2, 1, 0, Right, Before, True, S)
-   DrawArrow(Draw2, 1, 1, Right, Before, True, S)
-   DrawArrow(Draw2, 1, 2, Right, Before, True, S)
- elif Command == "Y2":
-  if Face == "U":
-   DrawArrow(Draw2, 1, 2, Left, After, False, S)
-   DrawLine(Draw2, False, S, Col=0)
-   DrawArrow(Draw2, 1, 0, Right, Before, False, S)
-  if Face == "D":
-   DrawArrow(Draw2, 1, 0, Left, After, False, S)
-   DrawLine(Draw2, False, S, Col=0)
-   DrawArrow(Draw2, 1, 2, Right, Before, False, S)
-  elif Face == "F":
-   DrawArrow(Draw2, 1, 0, Left, After, True, S)
-   DrawArrow(Draw2, 1, 1, Left, After, True, S)
-   DrawArrow(Draw2, 1, 2, Left, After, True, S)
-  elif Face == "L":
-   DrawLine(Draw2, True, S, Row=0)
-   DrawLine(Draw2, True, S, Row=1)
-   DrawLine(Draw2, True, S, Row=2)
-  elif Face == "B":
-   DrawArrow(Draw2, 1, 0, Left, Before, True, S)
-   DrawArrow(Draw2, 1, 1, Left, Before, True, S)
-   DrawArrow(Draw2, 1, 2, Left, Before, True, S)
-# # change unsupported
-# "F": [ [ "Y", "L", "Y'", ], [ "Y'", "R", "Y", ], ],
-# "F'": [ [ "Y", "L'", "Y'", ], [ "Y'", "R'", "Y", ], ],
-# "F2": [ [ "Y", "L2", "Y'", ], [ "Y'", "R2", "Y", ], ],
-# "B": [ [ "Y", "R", "Y'", ], [ "Y'", "L", "Y", ], ],
-# "B'": [ [ "Y", "R'", "Y'", ], [ "Y'", "L'", "Y", ], ],
-# "B2": [ [ "Y", "R2", "Y'", ], [ "Y'", "L2", "Y", ], ],
-# "M": [ [ "X'", "L'", "R", ], [ "X'", "R", "L'", ],  [ "L'", "X'", "R", ], [ "L'", "R", "X'", ], [ "R", "X'", "L'", ], [ "R", "L'", "X'", ], ],
-# "M'": [ [ "X", "L", "R'", ], [ "X", "R'", "L", ], [ "L", "X", "R'", ], [ "L", "R'", "X", ], [ "R'", "X", "L", ], [ "R'", "L", "X", ], ],
-# "M2": [ [ "X2", "L2", "R2", ], [ "X2", "R2", "L2", ], [ "L2", "X2", "R2", ], [ "L2", "R2", "X2", ], [ "R2", "X2", "L2", ], [ "R2", "L2", "X2", ], ],
-# "E": [ [ "Y'", "U", "D'", ], [ "Y'", "D'", "U", ], [ "U", "Y'", "D'", ], [ "U", "D'", "Y'", ], [ "D'", "Y'", "U", ], [ "D'", "U", "Y'", ], ],
-# "E'": [ [ "Y", "U'", "D", ], [ "Y", "D", "U'", ], [ "U'", "Y", "D", ], [ "U'", "D", "Y", ], [ "D", "Y", "U'", ], [ "D", "U'", "Y", ], ],
-# "E2": [ [ "Y2", "U2", "D2", ], [ "Y2", "D2", "U2",  ], [ "U2", "Y2", "D2", ], [ "U2", "D2", "Y2",  ], [ "D2", "Y2", "U2", ], [ "D2", "U2", "Y2",  ], ],
-# "S": [ [ "Y", "X'", "L'", "R", "Y'", ], [ "Y", "X'", "R", "L'", "Y'", ],  [ "Y", "L'", "X'", "R", "Y'", ], [ "Y", "L'", "R", "X'", "Y'", ], [ "Y", "R", "X'", "L'", "Y'", ], [ "Y", "R", "L'", "X'", "Y'", ], [ "Y'", "X", "L", "R'", "Y", ], [ "Y'", "X", "R'", "L", "Y", ], [ "Y'", "L", "X", "R'", "Y", ], [ "Y'", "L", "R'", "X", "Y", ], [ "Y'", "R'", "X", "L", "Y", ], [ "Y'", "R'", "L", "X", "Y", ], ],
-# "S'": [ [ "Y", "X", "L", "R'", "Y'", ], [ "Y", "X", "R'", "L", "Y'", ],  [ "Y", "L", "X", "R'", "Y'", ], [ "Y", "L", "R'", "X", "Y'", ], [ "Y", "R'", "X", "L", "Y'", ], [ "Y", "R'", "L", "X", "Y'", ], [ "Y'", "X'", "L'", "R", "Y", ], [ "Y'", "X'", "R", "L'", "Y", ], [ "Y'", "L'", "X'", "R", "Y", ], [ "Y'", "L'", "R", "X'", "Y", ], [ "Y'", "R", "X'", "L'", "Y", ], [ "Y'", "R", "L'", "X'", "Y", ], ],
-# "S2": [ [ "Y", "X2", "L2", "R2", "Y'" ], [ "Y", "X2", "R2", "L2", "Y'" ], [ "Y", "L2", "X2", "R2", "Y'" ], [ "Y", "L2", "R2", "X2", "Y'" ], [ "Y", "R2", "X2", "L2", "Y'" ], [ "Y", "R2", "L2", "X2", "Y'" ], [ "Y'", "X2", "L2", "R2", "Y" ], [ "Y'", "X2", "R2", "L2", "Y" ], [ "Y'", "L2", "X2", "R2", "Y" ], [ "Y'", "L2", "R2", "X2", "Y" ], [ "Y", "R2", "X2", "L2", "Y'" ], [ "Y", "R2", "L2", "X2", "Y'" ], ],
-## "u": [],
-## "l": [],
-## "f": [],
-## "r": [],
-## "b": [],
-## "d": [],
-## "u'": [],
-## "l'": [],
-# "f'": [],
-# "r'": [],
-# "b'": [],
-# "d'": [],
-# "u2": [],
-# "l2": [],
-# "f2": [],
-# "r2": [],
-# "b2": [],
-# "d2": [],
-# "Z": [],
-# "Z'": [],
-# "Z2": [],
  return Image.alpha_composite(Image1, Image2)
 
 
