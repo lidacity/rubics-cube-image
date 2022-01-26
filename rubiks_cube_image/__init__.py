@@ -208,7 +208,6 @@ def GetImage(Cube, Size, Command=None):
 def GetRaw(Cube, Size, Command=None):
  Result = io.BytesIO()
  Image1 = GetImage(Cube, Size, Command=Command)
- print(Image1.format)
  Image1.save(Result, format="PNG")
  RAW = Result.getvalue()
  return base64.b64encode(RAW).decode('utf-8')
