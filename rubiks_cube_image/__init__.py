@@ -1,3 +1,4 @@
+import os
 import io
 import base64
 
@@ -192,7 +193,7 @@ def GetImage(Cube, Size, Command=None):
  Result = Image.new('RGBA', (w + Size, h + Size // 2), 0)
  #
  if Command is not None:
-  Font1 = ImageFont.truetype("FreeMono.ttf", Size // 3)
+  Font1 = ImageFont.truetype(os.path.join(os.path.split(__file__)[0], "FreeMono.ttf"), Size // 3)
   Draw1 = ImageDraw.Draw(Result)
   Draw1.text((Size - Size / 5, Size / 5), Command, font=Font1, fill="black")
  #
