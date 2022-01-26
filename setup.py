@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name="rubiks_cube_image",
-    version="1.0.0",
+    version="1.0.1",
     description="Get simple Image of Rubik's Cube",
     keywords="rubik's cube image",
     url="https://github.com/lidacity/rubiks-cube-image",

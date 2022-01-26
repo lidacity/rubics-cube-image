@@ -1,6 +1,7 @@
+import io
+
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
-
 
 from rubiks_cube_image.arrow import GetArrow
 from rubiks_cube_image.line import GetLine
@@ -202,3 +203,9 @@ def GetImage(Cube, Size, Command=None):
  #Result.save(f"Result.png")
  return Result
 
+
+def GetRaw(Cube, Size, Command=None):
+ Result = io.BytesIO()
+ Image1 = GetImage(Cube, Size, Command=Command)
+ Image1.save(Result, format=image.format)
+ return Result.getvalue()
